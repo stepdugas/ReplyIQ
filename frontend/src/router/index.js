@@ -19,6 +19,16 @@ const routes = [
     component: () => import('../views/DashboardPage.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/terms',
+    name: 'Terms',
+    component: () => import('../views/TermsPage.vue'),
+  },
+  {
+    path: '/privacy',
+    name: 'Privacy',
+    component: () => import('../views/PrivacyPage.vue'),
+  },
 ]
 
 const router = createRouter({

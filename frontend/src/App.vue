@@ -1,7 +1,17 @@
 <script setup>
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
+import { computed } from 'vue'
+import AppFooter from './components/AppFooter.vue'
+
+const route = useRoute()
+const showFooter = computed(() => route.name !== 'Dashboard')
 </script>
 
 <template>
-  <RouterView />
+  <div class="flex flex-col min-h-screen">
+    <div class="flex-1">
+      <RouterView />
+    </div>
+    <AppFooter v-if="showFooter" />
+  </div>
 </template>

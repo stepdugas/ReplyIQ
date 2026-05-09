@@ -189,10 +189,15 @@ function logout() {
       </button>
       <button
         @click="logout"
-        class="w-full px-4 py-2 bg-[#1a1f2e] hover:bg-[#252b3d] text-gray-400 text-xs font-medium rounded-lg transition-colors"
+        class="w-full px-4 py-2 bg-[#1a1f2e] hover:bg-[#252b3d] text-gray-400 text-xs font-medium rounded-lg transition-colors mb-3"
       >
         Sign Out
       </button>
+      <div class="flex items-center justify-center gap-3 text-[10px] text-gray-600">
+        <span>&copy; 2026 Erie Apps LLC</span>
+        <router-link to="/terms" class="hover:text-gray-400 transition-colors">Terms</router-link>
+        <router-link to="/privacy" class="hover:text-gray-400 transition-colors">Privacy</router-link>
+      </div>
     </div>
   </aside>
 </template>

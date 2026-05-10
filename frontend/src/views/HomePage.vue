@@ -132,7 +132,10 @@ async function submit() {
             />
           </div>
           <div>
-            <label class="block text-xs font-medium text-gray-400 mb-1.5">Password</label>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-xs font-medium text-gray-400">Password</label>
+              <router-link v-if="mode === 'login'" to="/forgot-password" class="text-xs text-emerald-400 hover:text-emerald-300 transition-colors">Forgot password?</router-link>
+            </div>
             <input
               v-model="password"
               type="password"

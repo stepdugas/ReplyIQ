@@ -3,6 +3,7 @@ package com.replyiq.controller;
 import com.replyiq.dto.AuthResponse;
 import com.replyiq.dto.LoginRequest;
 import com.replyiq.dto.SignupRequest;
+import com.replyiq.security.RateLimiter;
 import com.replyiq.service.AuthService;
 import com.replyiq.service.PasswordResetService;
 import jakarta.validation.Valid;
@@ -19,6 +20,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final PasswordResetService passwordResetService;
+    private final RateLimiter rateLimiter;
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@Valid @RequestBody SignupRequest request) {
@@ -36,8 +38,11 @@ public class AuthController {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("Email is required");
         }
+        // Rate limit by email to prevent spam — still returns success to prevent enumeration
+        if (!rateLimiter.isAllowed("reset:" + email.toLowerCase(), 3, 3600)) {
+            return ResponseEntity.ok(Map.of("message", "If an account exists with that email, a reset link has been sent."));
+        }
         passwordResetService.requestReset(email);
-        // Always return success to prevent email enumeration
         return ResponseEntity.ok(Map.of("message", "If an account exists with that email, a reset link has been sent."));
     }
 

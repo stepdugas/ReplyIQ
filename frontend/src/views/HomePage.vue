@@ -1,10 +1,11 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { auth } from '../stores/auth'
 
 const router = useRouter()
-const mode = ref('login')
+const route = useRoute()
+const mode = ref(route.name === 'Signup' ? 'signup' : 'login')
 const name = ref('')
 const email = ref('')
 const password = ref('')
@@ -152,12 +153,13 @@ async function submit() {
 
         <p class="mt-6 text-center text-sm text-gray-500">
           {{ mode === 'signup' ? 'Already have an account?' : "Don't have an account?" }}
-          <button
+          <router-link
+            :to="mode === 'signup' ? '/login' : '/signup'"
             @click="mode = mode === 'signup' ? 'login' : 'signup'; error = ''"
             class="text-emerald-400 hover:text-emerald-300 ml-1 font-medium"
           >
             {{ mode === 'signup' ? 'Sign in' : 'Start free trial' }}
-          </button>
+          </router-link>
         </p>
       </div>
     </div>

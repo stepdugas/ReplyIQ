@@ -4,7 +4,17 @@ import { auth } from '../stores/auth'
 const routes = [
   {
     path: '/',
-    name: 'Home',
+    name: 'Landing',
+    component: () => import('../views/LandingPage.vue'),
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/HomePage.vue'),
+  },
+  {
+    path: '/signup',
+    name: 'Signup',
     component: () => import('../views/HomePage.vue'),
   },
   {
@@ -34,11 +44,14 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0 }
+  },
 })
 
 router.beforeEach((to) => {
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    return '/'
+    return '/login'
   }
 })
 

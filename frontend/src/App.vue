@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import AppFooter from './components/AppFooter.vue'
 
 const route = useRoute()
-const showFooter = computed(() => route.name !== 'Dashboard')
+const showFooter = computed(() => route.name !== 'Dashboard' && route.name !== 'Landing')
 </script>
 
 <template>

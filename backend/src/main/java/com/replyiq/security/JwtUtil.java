@@ -17,8 +17,11 @@ public class JwtUtil {
     private final long expirationMs;
 
     public JwtUtil(
-            @Value("${replyiq.jwt.secret:default-dev-secret-key-that-is-at-least-32-bytes-long}") String secret,
+            @Value("${replyiq.jwt.secret}") String secret,
             @Value("${replyiq.jwt.expiration-ms:86400000}") long expirationMs) {
+        if (secret == null || secret.isBlank() || "placeholder".equals(secret)) {
+            throw new IllegalStateException("replyiq.jwt.secret must be set — app cannot start without a JWT signing key");
+        }
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }

@@ -6,6 +6,7 @@ import com.replyiq.model.OAuthToken;
 import com.replyiq.model.User;
 import com.replyiq.repository.OAuthTokenRepository;
 import com.replyiq.repository.UserRepository;
+import com.replyiq.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -23,6 +24,7 @@ public class GoogleOAuthService {
     private final OAuthTokenRepository oauthTokenRepository;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+    private final JwtUtil jwtUtil;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -44,6 +46,8 @@ public class GoogleOAuthService {
     );
 
     public String buildAuthorizationUrl(Long userId) {
+        // Sign the state parameter so the callback can verify it wasn't tampered with
+        String signedState = jwtUtil.generateToken(userId, "oauth-state");
         return AUTH_URL
                 + "?client_id=" + clientId
                 + "&redirect_uri=" + redirectUri
@@ -51,7 +55,18 @@ public class GoogleOAuthService {
                 + "&scope=" + SCOPES.replace(" ", "%20")
                 + "&access_type=offline"
                 + "&prompt=consent"
-                + "&state=" + userId;
+                + "&state=" + signedState;
+    }
+
+    /**
+     * Verifies the signed state parameter and extracts the user ID.
+     * Throws if the state is invalid or expired.
+     */
+    public Long verifyStateAndGetUserId(String state) {
+        if (!jwtUtil.isTokenValid(state)) {
+            throw new IllegalArgumentException("Invalid or expired OAuth state");
+        }
+        return jwtUtil.getUserIdFromToken(state);
     }
 
     public OAuthToken exchangeCodeForTokens(String code, Long userId) {
@@ -80,7 +95,6 @@ public class GoogleOAuthService {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-            // Update existing token or create new one
             OAuthToken token = oauthTokenRepository.findByUserId(userId)
                     .orElse(OAuthToken.builder().user(user).build());
 

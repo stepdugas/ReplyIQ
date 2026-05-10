@@ -95,9 +95,7 @@ public class StripeService {
      * Handles subscription status changes from Stripe webhooks.
      */
     public void handleSubscriptionUpdate(String customerId, String status, Long currentPeriodEnd) {
-        userRepository.findAll().stream()
-                .filter(u -> customerId.equals(u.getStripeCustomerId()))
-                .findFirst()
+        userRepository.findByStripeCustomerId(customerId)
                 .ifPresent(user -> {
                     String mappedStatus = mapStripeStatus(status);
                     user.setSubscriptionStatus(mappedStatus);

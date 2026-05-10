@@ -4,6 +4,10 @@ spring:
     hibernate:
       ddl-auto: validate
 
+replyiq:
+  jwt:
+    secret: dev-only-secret-key-that-is-at-least-32-bytes-long
+
 logging:
   level:
     com.replyiq: DEBUG

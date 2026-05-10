@@ -28,12 +28,11 @@ public class ReplyPostingService {
             System.out.println("SUCCESS: Reply approved and posted for review by "
                     + review.getReviewerName() + " at " + review.getLocation().getLocationName());
         } catch (Exception e) {
-            // In dev/test mode without real Google credentials, mark as posted anyway
-            // so the flow can be tested end-to-end
-            System.err.println("WARN: Could not post to Google (expected in dev mode): " + e.getMessage());
-            review.setReplyStatus("posted");
-            review.setRepliedAt(LocalDateTime.now());
+            System.err.println("ERROR: Failed to post reply to Google for review "
+                    + review.getGoogleReviewId() + ": " + e.getMessage());
+            review.setReplyStatus("failed");
             reviewRepository.save(review);
+            throw new RuntimeException("Failed to post reply to Google: " + e.getMessage(), e);
         }
 
         return review;
@@ -49,7 +48,12 @@ public class ReplyPostingService {
         if (location.getAutoPost()) {
             System.out.println("AUTO-POST: Posting reply for review " + review.getGoogleReviewId()
                     + " at " + location.getLocationName());
-            approveAndPost(review);
+            try {
+                approveAndPost(review);
+            } catch (Exception e) {
+                // Auto-post failure is not fatal — review stays as "failed" and user can retry
+                System.err.println("AUTO-POST FAILED: " + e.getMessage());
+            }
         }
     }
 }

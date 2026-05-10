@@ -3,10 +3,14 @@ package com.replyiq.controller;
 import com.replyiq.service.GoogleBusinessService;
 import com.replyiq.service.GoogleOAuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.Map;
 
 @RestController
@@ -17,9 +21,9 @@ public class OAuthController {
     private final GoogleOAuthService googleOAuthService;
     private final GoogleBusinessService googleBusinessService;
 
-    /**
-     * Returns the Google OAuth URL the frontend should redirect the user to.
-     */
+    @Value("${replyiq.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
+
     @GetMapping("/google/authorize")
     public ResponseEntity<Map<String, String>> authorize(Authentication auth) {
         Long userId = (Long) auth.getPrincipal();
@@ -27,25 +31,23 @@ public class OAuthController {
         return ResponseEntity.ok(Map.of("url", url));
     }
 
-    /**
-     * Google redirects here after user grants permission.
-     * Exchanges the code for tokens, fetches locations, then redirects to dashboard.
-     */
     @GetMapping("/callback/google")
-    public ResponseEntity<Map<String, Object>> callback(
+    public ResponseEntity<Void> callback(
             @RequestParam("code") String code,
             @RequestParam("state") String state) {
 
-        Long userId = Long.parseLong(state);
-        googleOAuthService.exchangeCodeForTokens(code, userId);
+        // Verify the signed state token — rejects tampered or expired values
+        Long userId = googleOAuthService.verifyStateAndGetUserId(state);
 
+        googleOAuthService.exchangeCodeForTokens(code, userId);
         var locations = googleBusinessService.fetchAndStoreLocations(userId);
 
-        System.out.println("SUCCESS: OAuth callback complete — " + locations.size() + " locations connected for user " + userId);
+        System.out.println("SUCCESS: OAuth callback complete — " + locations.size()
+                + " locations connected for user " + userId);
 
-        return ResponseEntity.ok(Map.of(
-                "message", "Google Business Profile connected successfully",
-                "locationsConnected", locations.size()
-        ));
+        // Redirect to frontend dashboard after successful connection
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(frontendUrl + "/dashboard?connected=" + locations.size()));
+        return new ResponseEntity<>(headers, HttpStatus.FOUND);
     }
 }

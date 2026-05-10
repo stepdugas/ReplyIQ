@@ -42,7 +42,7 @@ public class EmailService {
         System.out.println("SUCCESS: Password reset confirmation sent to " + toEmail);
     }
 
-    private void sendEmail(String toEmail, String subject, String htmlContent) {
+    public void sendEmail(String toEmail, String subject, String htmlContent) {
         if ("placeholder".equals(sendgridApiKey)) {
             System.out.println("WARN: SendGrid API key not set — skipping email to " + toEmail);
             return;

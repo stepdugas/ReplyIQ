@@ -36,6 +36,10 @@ public class User {
     @Builder.Default
     private String subscriptionStatus = "trialing";
 
+    @Column(name = "email_notifications", nullable = false)
+    @Builder.Default
+    private Boolean emailNotifications = true;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

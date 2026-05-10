@@ -126,7 +126,7 @@
         <section>
           <h2 class="text-lg font-semibold text-white mb-3">15. Contact</h2>
           <p>If you have questions about these Terms, contact us at:</p>
-          <p class="mt-2 text-white">Erie Apps LLC<br>Email: support@erieapps.com</p>
+          <p class="mt-2 text-white">Erie Apps LLC<br>Email: stephanie@erie-apps.com</p>
         </section>
       </div>
     </div>

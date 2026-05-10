@@ -115,7 +115,7 @@
             <li><strong class="text-white">Portability:</strong> Request your data in a portable format</li>
             <li><strong class="text-white">Revoke consent:</strong> Disconnect your Google Business Profile at any time</li>
           </ul>
-          <p class="mt-2">To exercise any of these rights, contact us at <span class="text-white">support@erieapps.com</span>.</p>
+          <p class="mt-2">To exercise any of these rights, contact us at <span class="text-white">stephanie@erie-apps.com</span>.</p>
         </section>
 
         <section>
@@ -137,7 +137,7 @@
         <section>
           <h2 class="text-lg font-semibold text-white mb-3">11. Contact Us</h2>
           <p>If you have questions or concerns about this Privacy Policy or our data practices, contact us at:</p>
-          <p class="mt-2 text-white">Erie Apps LLC<br>Email: support@erieapps.com</p>
+          <p class="mt-2 text-white">Erie Apps LLC<br>Email: stephanie@erie-apps.com</p>
         </section>
       </div>
     </div>

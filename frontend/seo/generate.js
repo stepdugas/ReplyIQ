@@ -10,7 +10,8 @@ function ensureDir(dir) {
 }
 
 // Shared HTML layout
-function layout({ title, metaDescription, canonicalPath, body }) {
+function layout({ title, metaDescription, canonicalPath, body, schema }) {
+  const schemaTag = schema ? `\n<script type="application/ld+json">${JSON.stringify(schema)}</script>` : ''
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +22,8 @@ function layout({ title, metaDescription, canonicalPath, body }) {
 <meta property="og:title" content="${title}">
 <meta property="og:description" content="${metaDescription}">
 <meta property="og:type" content="article">
+<meta property="og:url" content="${SITE_URL}${canonicalPath}">
+<meta property="og:image" content="${SITE_URL}/og-image.png">
 <link rel="canonical" href="${SITE_URL}${canonicalPath}">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -81,7 +84,19 @@ footer{border-top:1px solid #2a3040;padding:20px 24px;text-align:center}
 .link-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
 .link-grid a{display:inline-block;padding:6px 14px;background:#1a1f2e;border:1px solid #2a3040;border-radius:8px;font-size:12px;color:#9ca3af;transition:border-color .2s}
 .link-grid a:hover{border-color:#34d399;color:#34d399}
-</style>
+@media(max-width:640px){
+  .nav-inner{flex-wrap:wrap;gap:12px}
+  .hero h1{font-size:28px}
+  .hero p{font-size:16px}
+  .steps{grid-template-columns:1fr}
+  .compare-table{font-size:12px}
+  .compare-table th,.compare-table td{padding:10px 8px}
+  .link-grid{gap:6px}
+  .link-grid a{padding:5px 10px;font-size:11px}
+  .cta-section h2{font-size:24px}
+  .footer-inner{flex-direction:column;text-align:center}
+}
+</style>${schemaTag}
 </head>
 <body>
 <nav class="nav"><div class="nav-inner">
@@ -159,6 +174,7 @@ function generateCategoryPages() {
       title: `Google Review Management for ${cat.name} — ReplyIQ`,
       metaDescription: `ReplyIQ automatically responds to Google reviews for ${cat.name.toLowerCase()}. Set it up in 2 minutes. $19.99/month. 7-day free trial.`,
       canonicalPath: `/for/${cat.slug}`,
+      schema: { "@context": "https://schema.org", "@type": "SoftwareApplication", "name": "ReplyIQ", "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "offers": { "@type": "Offer", "price": "19.99", "priceCurrency": "USD" } },
       body: `
         <div class="hero">
           <h1>Google Review Management for ${cat.name}</h1>
@@ -191,6 +207,7 @@ function generateCityPages() {
       title: `Google Review Management in ${city.name} — ReplyIQ`,
       metaDescription: `ReplyIQ helps ${city.name} businesses automatically respond to Google reviews. $19.99/month. 7-day free trial.`,
       canonicalPath: `/in/${city.slug}`,
+      schema: { "@context": "https://schema.org", "@type": "SoftwareApplication", "name": "ReplyIQ", "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "offers": { "@type": "Offer", "price": "19.99", "priceCurrency": "USD" } },
       body: `
         <div class="hero">
           <h1>Google Review Management for ${city.name} Businesses</h1>
@@ -217,12 +234,13 @@ function generateComparisonPages() {
   competitors.forEach(comp => {
     const pageDir = path.join(dir, comp.slug)
     ensureDir(pageDir)
-    const compDesc = `${comp.name} is a review management platform — but it's built for enterprises, not small business owners. ReplyIQ does one thing and does it well: automatically responds to your Google reviews using AI. No bloated feature set, no sales calls, no enterprise pricing. Just plug it in and your reviews get handled.`
+    const compDesc = comp.description
 
     const html = layout({
       title: `ReplyIQ vs ${comp.name} — Which is Better for Review Management?`,
       metaDescription: `Compare ReplyIQ and ${comp.name} for Google review management. See pricing, features, and setup time side by side.`,
       canonicalPath: `/vs/${comp.slug}`,
+      schema: { "@context": "https://schema.org", "@type": "WebPage", "name": `ReplyIQ vs ${comp.name}`, "description": `Compare ReplyIQ and ${comp.name} for Google review management.` },
       body: `
         <div class="hero">
           <h1>ReplyIQ vs ${comp.name}</h1>
@@ -265,6 +283,7 @@ function generateHowToPages() {
       title: `${article.title} — ReplyIQ`,
       metaDescription: article.metaDescription,
       canonicalPath: `/how-to/${article.slug}`,
+      schema: { "@context": "https://schema.org", "@type": "Article", "headline": article.title, "author": { "@type": "Organization", "name": "Erie Apps LLC" }, "publisher": { "@type": "Organization", "name": "Erie Apps LLC" } },
       body: `
         <div class="hero" style="padding-bottom:20px">
           <h1 style="font-size:clamp(24px,4vw,36px)">${article.title}</h1>
@@ -308,10 +327,10 @@ function generateComboPages() {
           ${pricingSection()}
           <div class="section"><div class="internal-links">
             <h3>More ${cat.name} Pages</h3><div class="link-grid">
-            ${cities.filter(c => c.slug !== city.slug).slice(0, 10).map(c => `<a href="/for/${cat.slug}/in/${c.slug}">${c.name}</a>`).join('')}
+            ${cities.filter(c => c.slug !== city.slug).slice(0, 20).map(c => `<a href="/for/${cat.slug}/in/${c.slug}">${c.name}</a>`).join('')}
             </div>
             <h3>More ${city.name} Business Types</h3><div class="link-grid">
-            ${categories.filter(c => c.slug !== cat.slug).slice(0, 10).map(c => `<a href="/for/${c.slug}/in/${city.slug}">${c.name}</a>`).join('')}
+            ${categories.filter(c => c.slug !== cat.slug).slice(0, 20).map(c => `<a href="/for/${c.slug}/in/${city.slug}">${c.name}</a>`).join('')}
             </div>
             <h3>Browse All</h3><div class="link-grid">
             <a href="/for/${cat.slug}">${cat.name}</a>

@@ -282,6 +282,53 @@ function generateHowToPages() {
   console.log(`  Generated ${howtos.length} how-to pages`)
 }
 
+// Generate category + city combo pages
+function generateComboPages() {
+  const dir = path.join(outputDir, 'for')
+  let count = 0
+
+  categories.forEach(cat => {
+    cities.forEach(city => {
+      const pageDir = path.join(dir, cat.slug, 'in', city.slug)
+      ensureDir(pageDir)
+
+      const comboDesc = `${cat.name} in ${city.name}, ${city.state} face fierce competition for customers — and Google reviews are the battleground. When someone searches for a ${cat.name.toLowerCase().replace(/s$/, '')} in ${city.name}, they see star ratings and review responses before they see your menu, your prices, or your hours. ReplyIQ helps ${city.name} ${cat.name.toLowerCase()} stay on top of every review automatically.`
+
+      const html = layout({
+        title: `Google Review Management for ${cat.name} in ${city.name} — ReplyIQ`,
+        metaDescription: `ReplyIQ automatically responds to Google reviews for ${cat.name.toLowerCase()} in ${city.name}, ${city.state}. $19.99/month. 7-day free trial.`,
+        canonicalPath: `/for/${cat.slug}/in/${city.slug}`,
+        body: `
+          <div class="hero">
+            <h1>Google Review Management for ${cat.name} in ${city.name}</h1>
+            <p>${comboDesc}</p>
+            <a href="/signup" class="btn btn-lg">Start Free Trial</a>
+          </div>
+          ${howItWorks()}
+          ${pricingSection()}
+          <div class="section"><div class="internal-links">
+            <h3>More ${cat.name} Pages</h3><div class="link-grid">
+            ${cities.filter(c => c.slug !== city.slug).slice(0, 10).map(c => `<a href="/for/${cat.slug}/in/${c.slug}">${c.name}</a>`).join('')}
+            </div>
+            <h3>More ${city.name} Business Types</h3><div class="link-grid">
+            ${categories.filter(c => c.slug !== cat.slug).slice(0, 10).map(c => `<a href="/for/${c.slug}/in/${city.slug}">${c.name}</a>`).join('')}
+            </div>
+            <h3>Browse All</h3><div class="link-grid">
+            <a href="/for/${cat.slug}">${cat.name}</a>
+            <a href="/in/${city.slug}">${city.name}</a>
+            </div>
+          </div></div>
+          ${ctaSection(`${city.name} ${cat.name.toLowerCase()} — start responding to reviews today`, 'Set up in 2 minutes. No credit card required.')}
+        `,
+      })
+      fs.writeFileSync(path.join(pageDir, 'index.html'), html)
+      count++
+    })
+  })
+
+  console.log(`  Generated ${count} category+city combo pages`)
+}
+
 // Generate sitemap.xml
 function generateSitemap() {
   const urls = [
@@ -294,6 +341,11 @@ function generateSitemap() {
 
   categories.forEach(c => urls.push({ path: `/for/${c.slug}`, priority: '0.8' }))
   cities.forEach(c => urls.push({ path: `/in/${c.slug}`, priority: '0.8' }))
+  categories.forEach(cat => {
+    cities.forEach(city => {
+      urls.push({ path: `/for/${cat.slug}/in/${city.slug}`, priority: '0.6' })
+    })
+  })
   competitors.forEach(c => urls.push({ path: `/vs/${c.slug}`, priority: '0.7' }))
   howtos.forEach(h => urls.push({ path: `/how-to/${h.slug}`, priority: '0.7' }))
 
@@ -325,10 +377,12 @@ Sitemap: ${SITE_URL}/sitemap.xml`
 console.log('\nGenerating SEO pages...\n')
 generateCategoryPages()
 generateCityPages()
+generateComboPages()
 generateComparisonPages()
 generateHowToPages()
 generateSitemap()
 generateRobotsTxt()
 
-const total = categories.length + cities.length + competitors.length + howtos.length
+const combos = categories.length * cities.length
+const total = categories.length + cities.length + combos + competitors.length + howtos.length
 console.log(`\nDone! ${total} SEO pages + sitemap.xml + robots.txt generated.\n`)

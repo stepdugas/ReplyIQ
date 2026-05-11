@@ -19,6 +19,11 @@ public class SeoPageController {
         return serveSeoPage("for/" + slug);
     }
 
+    @GetMapping(value = "/for/{category}/in/{city}", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> comboCategoryCity(@PathVariable String category, @PathVariable String city) {
+        return serveSeoPage("for/" + category + "/in/" + city);
+    }
+
     @GetMapping(value = "/in/{slug}", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> cityPage(@PathVariable String slug) {
         return serveSeoPage("in/" + slug);

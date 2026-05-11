@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
 import java.io.IOException;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 
 @Configuration
 @RequiredArgsConstructor
@@ -42,5 +43,12 @@ public class WebConfig implements WebMvcConfigurer {
                         return new ClassPathResource("/static/index.html");
                     }
                 });
+    }
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        // SEO pages — forward to static index.html files
+        String[] seoPrefixes = {"/for/", "/in/", "/vs/", "/how-to/"};
+        // These are handled by the SeoPageController
     }
 }

@@ -21,6 +21,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final NurtureSequenceService nurtureSequenceService;
 
     public AuthResponse signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -39,6 +40,13 @@ public class AuthService {
         String token = jwtUtil.generateToken(user.getId(), user.getEmail(), "login");
 
         log.info("New user signed up — {}", user.getEmail());
+
+        // Send welcome email (day 0 of nurture sequence)
+        try {
+            nurtureSequenceService.sendWelcomeEmail(user);
+        } catch (Exception e) {
+            log.warn("Failed to send welcome email to {}: {}", user.getEmail(), e.getMessage());
+        }
 
         return AuthResponse.builder()
                 .token(token)

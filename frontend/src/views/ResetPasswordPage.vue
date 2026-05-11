@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../api'
 
@@ -10,6 +10,39 @@ const confirmPassword = ref('')
 const success = ref(false)
 const error = ref('')
 const loading = ref(false)
+
+// Validation touched states
+const passwordTouched = ref(false)
+const confirmTouched = ref(false)
+
+const passwordStrength = computed(() => {
+  if (!passwordTouched.value) return null
+  const p = password.value
+  if (p.length < 8) return { level: 'weak', label: 'Weak', color: 'red' }
+  const hasUpper = /[A-Z]/.test(p)
+  const hasLower = /[a-z]/.test(p)
+  const hasNum = /[0-9]/.test(p)
+  if (hasUpper && hasLower && hasNum) return { level: 'strong', label: 'Strong', color: 'green' }
+  if (/[a-zA-Z]/.test(p) && hasNum) return { level: 'medium', label: 'Medium', color: 'yellow' }
+  return { level: 'weak', label: 'Weak', color: 'red' }
+})
+
+const passwordsMatch = computed(() => {
+  if (!confirmTouched.value) return null
+  return password.value === confirmPassword.value && confirmPassword.value.length > 0
+})
+
+function passwordInputClass() {
+  if (!passwordTouched.value) return 'border-[#2a3040]'
+  if (!password.value) return 'border-[#2a3040]'
+  return passwordStrength.value?.level === 'strong' ? 'border-emerald-500/50' : passwordStrength.value?.level === 'medium' ? 'border-yellow-500/50' : 'border-red-500/50'
+}
+
+function confirmInputClass() {
+  if (!confirmTouched.value) return 'border-[#2a3040]'
+  if (!confirmPassword.value) return 'border-[#2a3040]'
+  return passwordsMatch.value ? 'border-emerald-500/50' : 'border-red-500/50'
+}
 
 async function submit() {
   error.value = ''
@@ -86,9 +119,27 @@ async function submit() {
               required
               autocomplete="new-password"
               minlength="8"
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
+              @blur="passwordTouched = true"
+              :class="[
+                'w-full bg-[#1a1f2e] border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors',
+                passwordInputClass(),
+              ]"
               placeholder="••••••••"
             />
+            <!-- Password strength indicator -->
+            <div v-if="passwordStrength" class="mt-2">
+              <div class="flex gap-1 mb-1">
+                <div class="h-1 flex-1 rounded-full" :class="passwordStrength.level === 'weak' ? 'bg-red-500' : passwordStrength.level === 'medium' ? 'bg-yellow-500' : 'bg-green-500'"></div>
+                <div class="h-1 flex-1 rounded-full" :class="passwordStrength.level === 'medium' ? 'bg-yellow-500' : passwordStrength.level === 'strong' ? 'bg-green-500' : 'bg-[#2a3040]'"></div>
+                <div class="h-1 flex-1 rounded-full" :class="passwordStrength.level === 'strong' ? 'bg-green-500' : 'bg-[#2a3040]'"></div>
+              </div>
+              <p :class="[
+                'text-xs',
+                passwordStrength.color === 'red' ? 'text-red-400' : passwordStrength.color === 'yellow' ? 'text-yellow-400' : 'text-green-400',
+              ]">
+                {{ passwordStrength.label }}
+              </p>
+            </div>
           </div>
           <div>
             <label class="block text-xs font-medium text-gray-400 mb-1.5">Confirm Password</label>
@@ -98,9 +149,25 @@ async function submit() {
               required
               autocomplete="new-password"
               minlength="8"
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
+              @blur="confirmTouched = true"
+              :class="[
+                'w-full bg-[#1a1f2e] border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors',
+                confirmInputClass(),
+              ]"
               placeholder="••••••••"
             />
+            <!-- Password match indicator -->
+            <div v-if="confirmTouched && confirmPassword" class="flex items-center gap-1.5 mt-1">
+              <svg v-if="passwordsMatch" class="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <svg v-else class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <p :class="['text-xs', passwordsMatch ? 'text-green-400' : 'text-red-400']">
+                {{ passwordsMatch ? 'Passwords match' : 'Passwords do not match' }}
+              </p>
+            </div>
           </div>
           <button
             type="submit"

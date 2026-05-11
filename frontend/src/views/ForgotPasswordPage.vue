@@ -1,11 +1,29 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import api from '../api'
 
 const email = ref('')
 const sent = ref(false)
 const error = ref('')
 const loading = ref(false)
+
+// Validation
+const emailTouched = ref(false)
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const emailError = computed(() => {
+  if (!emailTouched.value) return ''
+  if (!email.value.trim()) return 'Email is required'
+  if (!emailRegex.test(email.value)) return 'Please enter a valid email'
+  return ''
+})
+
+const emailValid = computed(() => emailTouched.value && !emailError.value && email.value.trim())
+
+function emailInputClass() {
+  if (!emailTouched.value) return 'border-[#2a3040]'
+  return emailError.value ? 'border-red-500/50' : 'border-emerald-500/50'
+}
 
 async function submit() {
   error.value = ''
@@ -63,9 +81,14 @@ async function submit() {
               type="email"
               required
               autocomplete="email"
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
+              @blur="emailTouched = true"
+              :class="[
+                'w-full bg-[#1a1f2e] border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors',
+                emailInputClass(),
+              ]"
               placeholder="you@business.com"
             />
+            <p v-if="emailError" class="text-red-400 text-xs mt-1">{{ emailError }}</p>
           </div>
           <button
             type="submit"

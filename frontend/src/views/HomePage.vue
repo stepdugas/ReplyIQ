@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { auth } from '../stores/auth'
 
@@ -11,6 +11,57 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+
+// Validation touched states
+const nameTouched = ref(false)
+const emailTouched = ref(false)
+const passwordTouched = ref(false)
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+const emailError = computed(() => {
+  if (!emailTouched.value) return ''
+  if (!email.value.trim()) return 'Email is required'
+  if (!emailRegex.test(email.value)) return 'Please enter a valid email'
+  return ''
+})
+
+const nameError = computed(() => {
+  if (!nameTouched.value || mode.value !== 'signup') return ''
+  if (!name.value.trim()) return 'Name is required'
+  return ''
+})
+
+const passwordStrength = computed(() => {
+  if (!passwordTouched.value || mode.value !== 'signup') return null
+  const p = password.value
+  if (p.length < 8) return { level: 'weak', label: 'Weak', color: 'red' }
+  const hasUpper = /[A-Z]/.test(p)
+  const hasLower = /[a-z]/.test(p)
+  const hasNum = /[0-9]/.test(p)
+  if (hasUpper && hasLower && hasNum) return { level: 'strong', label: 'Strong', color: 'green' }
+  if (/[a-zA-Z]/.test(p) && hasNum) return { level: 'medium', label: 'Medium', color: 'yellow' }
+  return { level: 'weak', label: 'Weak', color: 'red' }
+})
+
+const emailValid = computed(() => emailTouched.value && !emailError.value && email.value.trim())
+const nameValid = computed(() => nameTouched.value && !nameError.value && name.value.trim() && mode.value === 'signup')
+
+function emailInputClass() {
+  if (!emailTouched.value) return 'border-[#2a3040]'
+  return emailError.value ? 'border-red-500/50' : 'border-emerald-500/50'
+}
+
+function nameInputClass() {
+  if (!nameTouched.value || mode.value !== 'signup') return 'border-[#2a3040]'
+  return nameError.value ? 'border-red-500/50' : 'border-emerald-500/50'
+}
+
+function passwordInputClass() {
+  if (!passwordTouched.value || mode.value !== 'signup') return 'border-[#2a3040]'
+  if (!password.value) return 'border-[#2a3040]'
+  return passwordStrength.value?.level === 'strong' ? 'border-emerald-500/50' : passwordStrength.value?.level === 'medium' ? 'border-yellow-500/50' : 'border-red-500/50'
+}
 
 if (auth.isAuthenticated) {
   router.push('/dashboard')
@@ -31,6 +82,15 @@ async function submit() {
   } finally {
     loading.value = false
   }
+}
+
+// Reset touched states on mode switch
+function switchMode() {
+  mode.value = mode.value === 'signup' ? 'login' : 'signup'
+  error.value = ''
+  nameTouched.value = false
+  emailTouched.value = false
+  passwordTouched.value = false
 }
 </script>
 
@@ -111,6 +171,7 @@ async function submit() {
         </div>
 
         <form @submit.prevent="submit" class="space-y-4">
+          <!-- Name field (signup only) -->
           <div v-if="mode === 'signup'">
             <label class="block text-xs font-medium text-gray-400 mb-1.5">Full Name</label>
             <input
@@ -118,10 +179,17 @@ async function submit() {
               type="text"
               required
               autocomplete="name"
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
+              @blur="nameTouched = true"
+              :class="[
+                'w-full bg-[#1a1f2e] border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors',
+                nameInputClass(),
+              ]"
               placeholder="Your Name"
             />
+            <p v-if="nameError" class="text-red-400 text-xs mt-1">{{ nameError }}</p>
           </div>
+
+          <!-- Email field -->
           <div>
             <label class="block text-xs font-medium text-gray-400 mb-1.5">Email</label>
             <input
@@ -129,10 +197,17 @@ async function submit() {
               type="email"
               required
               autocomplete="email"
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
+              @blur="emailTouched = true"
+              :class="[
+                'w-full bg-[#1a1f2e] border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors',
+                emailInputClass(),
+              ]"
               placeholder="you@business.com"
             />
+            <p v-if="emailError" class="text-red-400 text-xs mt-1">{{ emailError }}</p>
           </div>
+
+          <!-- Password field -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <label class="text-xs font-medium text-gray-400">Password</label>
@@ -144,10 +219,29 @@ async function submit() {
               required
               :autocomplete="mode === 'signup' ? 'new-password' : 'current-password'"
               :minlength="mode === 'signup' ? 8 : undefined"
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
+              @blur="passwordTouched = true"
+              :class="[
+                'w-full bg-[#1a1f2e] border rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors',
+                passwordInputClass(),
+              ]"
               placeholder="••••••••"
             />
+            <!-- Password strength indicator (signup only) -->
+            <div v-if="passwordStrength && mode === 'signup'" class="mt-2">
+              <div class="flex gap-1 mb-1">
+                <div class="h-1 flex-1 rounded-full" :class="passwordStrength.level === 'weak' ? 'bg-red-500' : passwordStrength.level === 'medium' ? 'bg-yellow-500' : 'bg-green-500'"></div>
+                <div class="h-1 flex-1 rounded-full" :class="passwordStrength.level === 'medium' ? 'bg-yellow-500' : passwordStrength.level === 'strong' ? 'bg-green-500' : 'bg-[#2a3040]'"></div>
+                <div class="h-1 flex-1 rounded-full" :class="passwordStrength.level === 'strong' ? 'bg-green-500' : 'bg-[#2a3040]'"></div>
+              </div>
+              <p :class="[
+                'text-xs',
+                passwordStrength.color === 'red' ? 'text-red-400' : passwordStrength.color === 'yellow' ? 'text-yellow-400' : 'text-green-400',
+              ]">
+                {{ passwordStrength.label }}
+              </p>
+            </div>
           </div>
+
           <button
             type="submit"
             :disabled="loading"
@@ -161,7 +255,7 @@ async function submit() {
           {{ mode === 'signup' ? 'Already have an account?' : "Don't have an account?" }}
           <router-link
             :to="mode === 'signup' ? '/login' : '/signup'"
-            @click="mode = mode === 'signup' ? 'login' : 'signup'; error = ''"
+            @click="switchMode"
             class="text-emerald-400 hover:text-emerald-300 ml-1 font-medium"
           >
             {{ mode === 'signup' ? 'Sign in' : 'Start free trial' }}

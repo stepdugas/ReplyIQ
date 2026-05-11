@@ -4,6 +4,7 @@ import api from '../api'
 import StatsRow from '../components/StatsRow.vue'
 import ReviewCard from '../components/ReviewCard.vue'
 import DashboardSidebar from '../components/DashboardSidebar.vue'
+import AnalyticsCharts from '../components/AnalyticsCharts.vue'
 import { toast } from '../stores/toast'
 
 const stats = ref({ totalReviews: 0, unansweredReviews: 0, repliedThisMonth: 0, averageRating: 0 })
@@ -11,6 +12,16 @@ const reviews = ref([])
 const loading = ref(true)
 const activeFilter = ref('all')
 const mobileMenuOpen = ref(false)
+const searchQuery = ref('')
+const sortBy = ref('newest')
+
+const sortOptions = [
+  { key: 'newest', label: 'Newest first' },
+  { key: 'oldest', label: 'Oldest first' },
+  { key: 'highest', label: 'Highest rating' },
+  { key: 'lowest', label: 'Lowest rating' },
+  { key: 'pending', label: 'Pending first' },
+]
 
 const filters = [
   { key: 'all', label: 'All Reviews' },
@@ -20,9 +31,44 @@ const filters = [
   { key: 'failed', label: 'Failed' },
 ]
 
-const filteredReviews = computed(() => {
-  if (activeFilter.value === 'all') return reviews.value
-  return reviews.value.filter((r) => r.replyStatus === activeFilter.value)
+const filteredAndSortedReviews = computed(() => {
+  let result = [...reviews.value]
+
+  // Filter by activeFilter
+  if (activeFilter.value !== 'all') {
+    result = result.filter((r) => r.replyStatus === activeFilter.value)
+  }
+
+  // Filter by search query
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase().trim()
+    result = result.filter((r) => {
+      const name = (r.reviewerName || '').toLowerCase()
+      const text = (r.reviewText || r.text || '').toLowerCase()
+      const location = (r.locationName || r.location || '').toLowerCase()
+      return name.includes(q) || text.includes(q) || location.includes(q)
+    })
+  }
+
+  // Sort
+  result.sort((a, b) => {
+    switch (sortBy.value) {
+      case 'oldest':
+        return new Date(a.reviewDate || a.createdAt) - new Date(b.reviewDate || b.createdAt)
+      case 'highest':
+        return (b.rating || 0) - (a.rating || 0)
+      case 'lowest':
+        return (a.rating || 0) - (b.rating || 0)
+      case 'pending':
+        if (a.replyStatus === 'pending' && b.replyStatus !== 'pending') return -1
+        if (b.replyStatus === 'pending' && a.replyStatus !== 'pending') return 1
+        return new Date(b.reviewDate || b.createdAt) - new Date(a.reviewDate || a.createdAt)
+      default: // newest
+        return new Date(b.reviewDate || b.createdAt) - new Date(a.reviewDate || a.createdAt)
+    }
+  })
+
+  return result
 })
 
 const filterCounts = computed(() => {
@@ -43,7 +89,8 @@ async function loadData() {
       api.get('/reviews'),
     ])
     stats.value = statsRes.data
-    reviews.value = reviewsRes.data
+    // Handle paginated response shape { reviews, page, size, totalElements, totalPages }
+    reviews.value = reviewsRes.data.reviews || reviewsRes.data
   } catch (e) {
     console.error('Failed to load dashboard data:', e)
   } finally {
@@ -123,6 +170,48 @@ onMounted(loadData)
         <!-- Stats -->
         <StatsRow :stats="stats" />
 
+        <!-- Analytics Charts -->
+        <AnalyticsCharts :reviews="reviews" />
+
+        <!-- Search and Sort Bar -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <!-- Search Input -->
+          <div class="relative flex-1">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search by name, review text, or location..."
+              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg pl-10 pr-9 py-2.5 text-sm text-gray-300 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
+            />
+            <button
+              v-if="searchQuery"
+              @click="searchQuery = ''"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+              aria-label="Clear search"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Sort Dropdown -->
+          <select
+            v-model="sortBy"
+            class="bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors appearance-none cursor-pointer sm:w-48"
+          >
+            <option v-for="opt in sortOptions" :key="opt.key" :value="opt.key">{{ opt.label }}</option>
+          </select>
+        </div>
+
+        <!-- Result Count -->
+        <p class="text-xs text-gray-500">
+          Showing {{ filteredAndSortedReviews.length }} of {{ reviews.length }} reviews
+        </p>
+
         <!-- Filter Bar -->
         <div class="flex items-center gap-1 bg-[#1a1f2e] rounded-xl p-1 border border-[#2a3040] overflow-x-auto">
           <button
@@ -164,7 +253,7 @@ onMounted(loadData)
           </div>
         </div>
 
-        <div v-else-if="filteredReviews.length === 0" class="text-center py-16">
+        <div v-else-if="filteredAndSortedReviews.length === 0" class="text-center py-16">
           <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[#1a1f2e] flex items-center justify-center">
             <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -172,13 +261,13 @@ onMounted(loadData)
           </div>
           <h3 class="text-gray-400 font-medium mb-1">No reviews here</h3>
           <p class="text-gray-600 text-sm">
-            {{ activeFilter === 'all' ? 'Connect a Google Business Profile to start monitoring reviews.' : 'No reviews match this filter.' }}
+            {{ activeFilter === 'all' && !searchQuery ? 'Connect a Google Business Profile to start monitoring reviews.' : 'No reviews match this filter.' }}
           </p>
         </div>
 
         <div v-else class="space-y-3">
           <ReviewCard
-            v-for="review in filteredReviews"
+            v-for="review in filteredAndSortedReviews"
             :key="review.id"
             :review="review"
             @updated="loadData"

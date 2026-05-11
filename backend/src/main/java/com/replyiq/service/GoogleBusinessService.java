@@ -7,6 +7,7 @@ import com.replyiq.model.User;
 import com.replyiq.repository.LocationRepository;
 import com.replyiq.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoogleBusinessService {
@@ -46,7 +48,7 @@ public class GoogleBusinessService {
             allLocations.addAll(locations);
         }
 
-        System.out.println("SUCCESS: Fetched " + allLocations.size() + " locations for user " + userId);
+        log.info("Fetched {} locations for user {}", allLocations.size(), userId);
         return allLocations;
     }
 

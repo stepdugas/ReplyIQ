@@ -6,6 +6,7 @@ import com.replyiq.model.Location;
 import com.replyiq.model.Review;
 import com.replyiq.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -15,6 +16,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoogleReviewService {
@@ -67,7 +69,7 @@ public class GoogleReviewService {
 
                 pageToken = json.has("nextPageToken") ? json.get("nextPageToken").asText() : null;
             } catch (Exception e) {
-                System.err.println("ERROR: Failed to parse reviews for " + locationName + ": " + e.getMessage());
+                log.error("Failed to parse reviews for {}: {}", locationName, e.getMessage());
                 break;
             }
         } while (pageToken != null);
@@ -149,7 +151,7 @@ public class GoogleReviewService {
         review.setRepliedAt(LocalDateTime.now());
         reviewRepository.save(review);
 
-        System.out.println("SUCCESS: Reply posted to Google for review " + review.getGoogleReviewId());
+        log.info("Reply posted to Google for review {}", review.getGoogleReviewId());
     }
 
     private int parseStarRating(String rating) {

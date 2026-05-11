@@ -2,6 +2,7 @@ package com.replyiq.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -32,19 +34,19 @@ public class EmailService {
         String subject = "Reset your ReplyIQ password";
         String html = buildResetEmailHtml(resetUrl);
         sendEmail(toEmail, subject, html);
-        System.out.println("SUCCESS: Password reset email sent to " + toEmail);
+        log.info("Password reset email sent to {}", toEmail);
     }
 
     public void sendPasswordResetConfirmation(String toEmail) {
         String subject = "Your ReplyIQ password has been reset";
         String html = buildResetConfirmationHtml();
         sendEmail(toEmail, subject, html);
-        System.out.println("SUCCESS: Password reset confirmation sent to " + toEmail);
+        log.info("Password reset confirmation sent to {}", toEmail);
     }
 
     public void sendEmail(String toEmail, String subject, String htmlContent) {
         if ("placeholder".equals(sendgridApiKey)) {
-            System.out.println("WARN: SendGrid API key not set — skipping email to " + toEmail);
+            log.warn("SendGrid API key not set — skipping email to {}", toEmail);
             return;
         }
 
@@ -66,7 +68,7 @@ public class EmailService {
             restTemplate.exchange(SENDGRID_API_URL, HttpMethod.POST,
                     new HttpEntity<>(requestBody, headers), String.class);
         } catch (Exception e) {
-            System.err.println("ERROR: Failed to send email via SendGrid: " + e.getMessage());
+            log.error("Failed to send email via SendGrid: {}", e.getMessage());
             throw new RuntimeException("Failed to send email", e);
         }
     }

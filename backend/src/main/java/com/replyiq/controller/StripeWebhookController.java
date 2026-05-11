@@ -6,10 +6,12 @@ import com.stripe.model.Event;
 import com.stripe.model.Subscription;
 import com.stripe.net.Webhook;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/stripe/webhook")
 @RequiredArgsConstructor
@@ -29,12 +31,12 @@ public class StripeWebhookController {
         try {
             event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
         } catch (SignatureVerificationException e) {
-            System.err.println("ERROR: Invalid Stripe webhook signature");
+            log.error("Invalid Stripe webhook signature");
             return ResponseEntity.status(400).body("Invalid signature");
         }
 
         String type = event.getType();
-        System.out.println("STRIPE WEBHOOK: " + type);
+        log.info("Stripe webhook: {}", type);
 
         switch (type) {
             case "customer.subscription.created",
@@ -54,9 +56,9 @@ public class StripeWebhookController {
             }
             case "customer.subscription.trial_will_end" -> {
                 // Could send email reminder here via SendGrid
-                System.out.println("STRIPE: Trial ending soon");
+                log.info("Stripe: Trial ending soon");
             }
-            default -> System.out.println("STRIPE: Unhandled event type: " + type);
+            default -> log.info("Stripe: Unhandled event type: {}", type);
         }
 
         return ResponseEntity.ok("OK");

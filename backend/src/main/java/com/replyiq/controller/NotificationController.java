@@ -4,6 +4,7 @@ import com.replyiq.model.User;
 import com.replyiq.repository.UserRepository;
 import com.replyiq.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
@@ -31,11 +33,17 @@ public class NotificationController {
             return ResponseEntity.badRequest().body("Invalid or expired unsubscribe link.");
         }
 
+        // Verify this token was actually issued for unsubscribe
+        String purpose = jwtUtil.getPurposeFromToken(token);
+        if (!"unsubscribe".equals(purpose)) {
+            return ResponseEntity.badRequest().body("Invalid or expired unsubscribe link.");
+        }
+
         Long userId = jwtUtil.getUserIdFromToken(token);
         userRepository.findById(userId).ifPresent(user -> {
             user.setEmailNotifications(false);
             userRepository.save(user);
-            System.out.println("SUCCESS: User " + user.getEmail() + " unsubscribed from notifications");
+            log.info("User {} unsubscribed from notifications", user.getEmail());
         });
 
         HttpHeaders headers = new HttpHeaders();

@@ -36,6 +36,21 @@ public class RateLimitInterceptor implements HandlerInterceptor {
                 writeRateLimitResponse(response, "Too many login attempts. Please try again in a few minutes.");
                 return false;
             }
+        } else if (path.startsWith("/api/replies/generate/")) {
+            if (!rateLimiter.isAllowed("generate:" + ip, 50, 3600)) {
+                writeRateLimitResponse(response, "Too many reply generation requests. Please try again later.");
+                return false;
+            }
+        } else if ("/api/replies/generate-all".equals(path)) {
+            if (!rateLimiter.isAllowed("generate-all:" + ip, 5, 3600)) {
+                writeRateLimitResponse(response, "Too many bulk generation requests. Please try again later.");
+                return false;
+            }
+        } else if ("/api/reviews/poll".equals(path)) {
+            if (!rateLimiter.isAllowed("poll:" + ip, 10, 3600)) {
+                writeRateLimitResponse(response, "Too many poll requests. Please try again later.");
+                return false;
+            }
         }
 
         return true;

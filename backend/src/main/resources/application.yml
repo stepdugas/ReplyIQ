@@ -52,5 +52,7 @@ replyiq:
     api-key: ${SENDGRID_API_KEY:placeholder}
   google:
     redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/api/oauth2/callback/google}
+  encryption:
+    key: ${ENCRYPTION_KEY:dev-only-encryption-key-32bytes!}
   review-poll:
     interval-minutes: 30

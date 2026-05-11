@@ -117,7 +117,8 @@ async function submit() {
               v-model="name"
               type="text"
               required
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              autocomplete="name"
+              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
               placeholder="Your Name"
             />
           </div>
@@ -127,7 +128,8 @@ async function submit() {
               v-model="email"
               type="email"
               required
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              autocomplete="email"
+              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
               placeholder="you@business.com"
             />
           </div>
@@ -140,8 +142,9 @@ async function submit() {
               v-model="password"
               type="password"
               required
+              :autocomplete="mode === 'signup' ? 'new-password' : 'current-password'"
               :minlength="mode === 'signup' ? 8 : undefined"
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
               placeholder="••••••••"
             />
           </div>

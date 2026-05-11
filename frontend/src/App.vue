@@ -2,6 +2,7 @@
 import { RouterView, useRoute } from 'vue-router'
 import { computed } from 'vue'
 import AppFooter from './components/AppFooter.vue'
+import ToastNotification from './components/ToastNotification.vue'
 
 const route = useRoute()
 const showFooter = computed(() => route.name !== 'Dashboard' && route.name !== 'Landing')
@@ -13,5 +14,6 @@ const showFooter = computed(() => route.name !== 'Dashboard' && route.name !== '
       <RouterView />
     </div>
     <AppFooter v-if="showFooter" />
+    <ToastNotification />
   </div>
 </template>

@@ -4,10 +4,12 @@ import com.replyiq.model.User;
 import com.replyiq.repository.UserRepository;
 import com.replyiq.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PasswordResetService {
@@ -24,15 +26,17 @@ public class PasswordResetService {
      * Sends a password reset email if the user exists.
      * Always returns success to prevent email enumeration.
      */
+    private static final long ONE_HOUR_MS = 3_600_000L;
+
     public void requestReset(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
-            // Generate a short-lived token (1 hour) using the existing JWT util
-            String token = jwtUtil.generateToken(user.getId(), "password-reset");
+            // Generate a short-lived token (1 hour) with password-reset purpose
+            String token = jwtUtil.generateToken(user.getId(), user.getEmail(), "password-reset", ONE_HOUR_MS);
             String resetUrl = frontendUrl + "/reset-password?token=" + token;
             emailService.sendPasswordResetEmail(user.getEmail(), resetUrl);
         });
 
-        System.out.println("SUCCESS: Password reset requested for " + email);
+        log.info("Password reset requested for {}", email);
     }
 
     /**
@@ -40,6 +44,12 @@ public class PasswordResetService {
      */
     public void resetPassword(String token, String newPassword) {
         if (!jwtUtil.isTokenValid(token)) {
+            throw new IllegalArgumentException("Reset link is invalid or has expired");
+        }
+
+        // Verify this token was actually issued for password-reset
+        String purpose = jwtUtil.getPurposeFromToken(token);
+        if (!"password-reset".equals(purpose)) {
             throw new IllegalArgumentException("Reset link is invalid or has expired");
         }
 
@@ -51,6 +61,6 @@ public class PasswordResetService {
         userRepository.save(user);
 
         emailService.sendPasswordResetConfirmation(user.getEmail());
-        System.out.println("SUCCESS: Password reset for " + user.getEmail());
+        log.info("Password reset for {}", user.getEmail());
     }
 }

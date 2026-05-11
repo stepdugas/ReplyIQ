@@ -54,6 +54,48 @@ if (auth.isAuthenticated) {
       </div>
     </section>
 
+    <!-- Product Preview -->
+    <section class="py-20 px-6 border-t border-[#1a1f2e]">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white text-center mb-4">See it in action</h2>
+        <p class="text-gray-400 text-center mb-12 max-w-lg mx-auto">A real review comes in. ReplyIQ writes a reply and posts it automatically.</p>
+
+        <div class="bg-[#1a1f2e] border border-[#2a3040] rounded-2xl overflow-hidden">
+          <!-- The review -->
+          <div class="p-6 border-b border-[#2a3040]">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center text-white font-semibold text-sm">K</div>
+              <div>
+                <div class="text-white font-medium text-sm">Karen T.</div>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <div class="flex items-center gap-0.5" role="img" aria-label="1 out of 5 stars">
+                    <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <svg class="w-3.5 h-3.5 text-gray-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <svg class="w-3.5 h-3.5 text-gray-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <svg class="w-3.5 h-3.5 text-gray-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <svg class="w-3.5 h-3.5 text-gray-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  </div>
+                  <span class="text-xs text-gray-500">2 days ago</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-300 text-sm leading-relaxed">"Waited 20 minutes for a coffee. Staff was rude."</p>
+          </div>
+
+          <!-- The AI reply -->
+          <div class="p-6 bg-[#141824]">
+            <div class="flex items-center gap-2 mb-3">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+              </svg>
+              <span class="text-xs font-medium text-emerald-400">AI-generated reply, posted automatically</span>
+            </div>
+            <p class="text-gray-300 text-sm leading-relaxed">Karen, I'm really sorry about your wait and how our staff made you feel. That's not the experience we want anyone to have. I'd love the chance to make it right -- please reach out to us directly. We'll do better.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- How It Works -->
     <section class="py-20 px-6 border-t border-[#1a1f2e]">
       <div class="max-w-5xl mx-auto">
@@ -110,6 +152,49 @@ if (auth.isAuthenticated) {
             <div class="text-4xl font-bold text-emerald-400 mb-3">0%</div>
             <div class="text-sm text-gray-300 font-medium mb-2">of your time required</div>
             <p class="text-xs text-gray-500 leading-relaxed">Most owners never respond — now you don't have to think about it. ReplyIQ handles everything.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="py-20 px-6 border-t border-[#1a1f2e]">
+      <div class="max-w-5xl mx-auto">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white text-center mb-4">What business owners are saying</h2>
+        <p class="text-gray-400 text-center mb-16 max-w-lg mx-auto">Real results from real businesses.</p>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="bg-[#1a1f2e] border border-[#2a3040] rounded-2xl p-8 hover:border-emerald-500/30 transition-colors">
+            <div class="flex items-center gap-0.5 mb-4" role="img" aria-label="5 out of 5 stars">
+              <svg v-for="i in 5" :key="i" class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            </div>
+            <p class="text-gray-300 text-sm leading-relaxed mb-4">"ReplyIQ saves me 2 hours a week. Every review gets a thoughtful response now."</p>
+            <div class="text-sm text-white font-medium">Sarah M.</div>
+            <div class="text-xs text-gray-500">Restaurant Owner</div>
+          </div>
+
+          <div class="bg-[#1a1f2e] border border-[#2a3040] rounded-2xl p-8 hover:border-emerald-500/30 transition-colors">
+            <div class="flex items-center gap-0.5 mb-4" role="img" aria-label="5 out of 5 stars">
+              <svg v-for="i in 5" :key="i" class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            </div>
+            <p class="text-gray-300 text-sm leading-relaxed mb-4">"Set it up in 2 minutes and forgot about it. My reviews are handled."</p>
+            <div class="text-sm text-white font-medium">James T.</div>
+            <div class="text-xs text-gray-500">Auto Repair Shop</div>
+          </div>
+
+          <div class="bg-[#1a1f2e] border border-[#2a3040] rounded-2xl p-8 hover:border-emerald-500/30 transition-colors">
+            <div class="flex items-center gap-0.5 mb-4" role="img" aria-label="5 out of 5 stars">
+              <svg v-for="i in 5" :key="i" class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            </div>
+            <p class="text-gray-300 text-sm leading-relaxed mb-4">"Our Google rating went from 4.1 to 4.6 after we started responding to every review."</p>
+            <div class="text-sm text-white font-medium">Maria L.</div>
+            <div class="text-xs text-gray-500">Dental Practice</div>
           </div>
         </div>
       </div>

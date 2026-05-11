@@ -7,11 +7,13 @@ import com.replyiq.model.User;
 import com.replyiq.repository.UserRepository;
 import com.replyiq.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -34,9 +36,9 @@ public class AuthService {
                 .build();
 
         user = userRepository.save(user);
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail());
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), "login");
 
-        System.out.println("SUCCESS: New user signed up — " + user.getEmail());
+        log.info("New user signed up — {}", user.getEmail());
 
         return AuthResponse.builder()
                 .token(token)
@@ -54,9 +56,9 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail());
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), "login");
 
-        System.out.println("SUCCESS: User logged in — " + user.getEmail());
+        log.info("User logged in — {}", user.getEmail());
 
         return AuthResponse.builder()
                 .token(token)

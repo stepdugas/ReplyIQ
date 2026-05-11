@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import StarRating from './StarRating.vue'
 import StatusBadge from './StatusBadge.vue'
 import api from '../api'
+import { toast } from '../stores/toast'
 
 const props = defineProps({
   review: { type: Object, required: true },
@@ -22,6 +23,7 @@ function startEdit() {
 async function saveEdit() {
   await api.put(`/replies/${props.review.id}`, { replyText: editText.value })
   editing.value = false
+  toast.showSuccess('Reply saved')
   emit('updated')
 }
 
@@ -29,8 +31,10 @@ async function generateReply() {
   generating.value = true
   try {
     await api.post(`/replies/generate/${props.review.id}`)
+    toast.showSuccess('Reply generated')
     emit('updated')
   } catch (e) {
+    toast.showError('Failed to generate reply')
     console.error('Failed to generate reply:', e)
   } finally {
     generating.value = false
@@ -43,8 +47,10 @@ async function approveReply() {
   approving.value = true
   try {
     await api.post(`/replies/approve/${props.review.id}`)
+    toast.showSuccess('Reply approved and posted')
     emit('updated')
   } catch (e) {
+    toast.showError('Failed to approve reply')
     console.error('Failed to approve reply:', e)
   } finally {
     approving.value = false
@@ -55,8 +61,10 @@ async function regenerateReply() {
   generating.value = true
   try {
     await api.post(`/replies/regenerate/${props.review.id}`)
+    toast.showSuccess('Reply regenerated')
     emit('updated')
   } catch (e) {
+    toast.showError('Failed to regenerate reply')
     console.error('Failed to regenerate reply:', e)
   } finally {
     generating.value = false
@@ -119,7 +127,7 @@ function timeAgo(dateStr) {
       <div v-if="editing" class="mb-3">
         <textarea
           v-model="editText"
-          class="w-full bg-[#141824] border border-emerald-500/30 rounded-lg p-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-emerald-500 resize-none"
+          class="w-full bg-[#141824] border border-emerald-500/30 rounded-lg p-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] resize-none"
           rows="4"
           placeholder="Edit your reply..."
         ></textarea>

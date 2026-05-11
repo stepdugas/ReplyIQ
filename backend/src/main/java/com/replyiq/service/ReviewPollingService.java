@@ -5,11 +5,13 @@ import com.replyiq.model.User;
 import com.replyiq.repository.LocationRepository;
 import com.replyiq.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewPollingService {
@@ -26,12 +28,9 @@ public class ReviewPollingService {
                timeUnit = java.util.concurrent.TimeUnit.MINUTES,
                initialDelay = 1)
     public void pollAllLocations() {
-        System.out.println("POLL: Starting review poll cycle...");
+        log.info("Starting review poll cycle...");
 
-        List<User> activeUsers = userRepository.findAll().stream()
-                .filter(u -> "active".equals(u.getSubscriptionStatus())
-                        || "trialing".equals(u.getSubscriptionStatus()))
-                .toList();
+        List<User> activeUsers = userRepository.findBySubscriptionStatusIn(List.of("active", "trialing"));
 
         int totalNewReviews = 0;
         int totalLocations = 0;
@@ -46,18 +45,15 @@ public class ReviewPollingService {
                     totalLocations++;
 
                     if (newCount > 0) {
-                        System.out.println("POLL: Found " + newCount + " new reviews for '"
-                                + location.getLocationName() + "' (user: " + user.getEmail() + ")");
+                        log.info("Found {} new reviews for '{}' (user: {})", newCount, location.getLocationName(), user.getEmail());
                     }
                 } catch (Exception e) {
-                    System.err.println("POLL ERROR: Failed to poll reviews for '"
-                            + location.getLocationName() + "': " + e.getMessage());
+                    log.error("Failed to poll reviews for '{}': {}", location.getLocationName(), e.getMessage());
                 }
             }
         }
 
-        System.out.println("POLL: Complete — checked " + totalLocations
-                + " locations, found " + totalNewReviews + " new reviews");
+        log.info("Poll complete — checked {} locations, found {} new reviews", totalLocations, totalNewReviews);
     }
 
     /**
@@ -71,11 +67,11 @@ public class ReviewPollingService {
             try {
                 totalNew += googleReviewService.fetchAndStoreReviews(location);
             } catch (Exception e) {
-                System.err.println("POLL ERROR: " + location.getLocationName() + ": " + e.getMessage());
+                log.error("Poll error for {}: {}", location.getLocationName(), e.getMessage());
             }
         }
 
-        System.out.println("SUCCESS: On-demand poll for user " + userId + " — " + totalNew + " new reviews");
+        log.info("On-demand poll for user {} — {} new reviews", userId, totalNew);
         return totalNew;
     }
 }

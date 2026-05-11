@@ -3,6 +3,7 @@ package com.replyiq.controller;
 import com.replyiq.service.GoogleBusinessService;
 import com.replyiq.service.GoogleOAuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/oauth2")
 @RequiredArgsConstructor
@@ -42,8 +44,7 @@ public class OAuthController {
         googleOAuthService.exchangeCodeForTokens(code, userId);
         var locations = googleBusinessService.fetchAndStoreLocations(userId);
 
-        System.out.println("SUCCESS: OAuth callback complete — " + locations.size()
-                + " locations connected for user " + userId);
+        log.info("OAuth callback complete — {} locations connected for user {}", locations.size(), userId);
 
         // Redirect to frontend dashboard after successful connection
         HttpHeaders headers = new HttpHeaders();

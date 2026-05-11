@@ -27,11 +27,27 @@ public class JwtUtil {
     }
 
     public String generateToken(Long userId, String email) {
+        return generateToken(userId, email, "login");
+    }
+
+    public String generateToken(Long userId, String email, String purpose) {
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("email", email)
+                .claim("purpose", purpose)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateToken(Long userId, String email, String purpose, long customExpirationMs) {
+        return Jwts.builder()
+                .subject(userId.toString())
+                .claim("email", email)
+                .claim("purpose", purpose)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + customExpirationMs))
                 .signWith(key)
                 .compact();
     }
@@ -42,6 +58,10 @@ public class JwtUtil {
 
     public String getEmailFromToken(String token) {
         return getClaims(token).get("email", String.class);
+    }
+
+    public String getPurposeFromToken(String token) {
+        return getClaims(token).get("purpose", String.class);
     }
 
     public boolean isTokenValid(String token) {

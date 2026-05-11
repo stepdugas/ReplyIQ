@@ -74,12 +74,6 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- Scheduling (for review polling) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-quartz</artifactId>
-        </dependency>
-
         <!-- Flyway -->
         <dependency>
             <groupId>org.flywaydb</groupId>

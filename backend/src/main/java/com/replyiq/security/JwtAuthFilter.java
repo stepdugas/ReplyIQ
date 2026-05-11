@@ -28,12 +28,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             if (jwtUtil.isTokenValid(token)) {
-                Long userId = jwtUtil.getUserIdFromToken(token);
-                String email = jwtUtil.getEmailFromToken(token);
+                // Only accept tokens issued for login purpose
+                String purpose = jwtUtil.getPurposeFromToken(token);
+                if ("login".equals(purpose) || purpose == null) {
+                    Long userId = jwtUtil.getUserIdFromToken(token);
+                    String email = jwtUtil.getEmailFromToken(token);
 
-                var auth = new UsernamePasswordAuthenticationToken(
-                        userId, email, List.of());
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                    var auth = new UsernamePasswordAuthenticationToken(
+                            userId, email, List.of());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
         }
 

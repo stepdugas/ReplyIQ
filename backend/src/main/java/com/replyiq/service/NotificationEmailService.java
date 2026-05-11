@@ -6,6 +6,7 @@ import com.replyiq.repository.ReviewRepository;
 import com.replyiq.repository.UserRepository;
 import com.replyiq.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationEmailService {
@@ -31,7 +33,7 @@ public class NotificationEmailService {
      */
     @Scheduled(cron = "0 0 8 * * *")
     public void sendDailyUnansweredAlerts() {
-        System.out.println("NOTIFY: Running daily unanswered review alerts...");
+        log.info("Running daily unanswered review alerts...");
 
         List<User> users = getNotifiableUsers();
         int sent = 0;
@@ -49,11 +51,11 @@ public class NotificationEmailService {
                 emailService.sendEmail(user.getEmail(), subject, html);
                 sent++;
             } catch (Exception e) {
-                System.err.println("NOTIFY ERROR: Failed to send daily alert to " + user.getEmail() + ": " + e.getMessage());
+                log.error("Failed to send daily alert to {}: {}", user.getEmail(), e.getMessage());
             }
         }
 
-        System.out.println("NOTIFY: Daily alerts complete — sent " + sent + " emails");
+        log.info("Daily alerts complete — sent {} emails", sent);
     }
 
     /**
@@ -61,7 +63,7 @@ public class NotificationEmailService {
      */
     @Scheduled(cron = "0 0 8 * * MON")
     public void sendWeeklySummaries() {
-        System.out.println("NOTIFY: Running weekly summaries...");
+        log.info("Running weekly summaries...");
 
         List<User> users = getNotifiableUsers();
         LocalDateTime weekAgo = LocalDateTime.now().minus(7, ChronoUnit.DAYS);
@@ -80,11 +82,11 @@ public class NotificationEmailService {
                 emailService.sendEmail(user.getEmail(), subject, html);
                 sent++;
             } catch (Exception e) {
-                System.err.println("NOTIFY ERROR: Failed to send weekly summary to " + user.getEmail() + ": " + e.getMessage());
+                log.error("Failed to send weekly summary to {}: {}", user.getEmail(), e.getMessage());
             }
         }
 
-        System.out.println("NOTIFY: Weekly summaries complete — sent " + sent + " emails");
+        log.info("Weekly summaries complete — sent {} emails", sent);
     }
 
     /**
@@ -92,14 +94,13 @@ public class NotificationEmailService {
      */
     @Scheduled(cron = "0 0 8 * * *")
     public void sendTrialEndingReminders() {
-        System.out.println("NOTIFY: Checking for expiring trials...");
+        log.info("Checking for expiring trials...");
 
         LocalDateTime twoDaysFromNow = LocalDateTime.now().plus(2, ChronoUnit.DAYS);
         LocalDateTime threeDaysFromNow = LocalDateTime.now().plus(3, ChronoUnit.DAYS);
         int sent = 0;
 
-        List<User> trialingUsers = userRepository.findAll().stream()
-                .filter(u -> "trialing".equals(u.getSubscriptionStatus()))
+        List<User> trialingUsers = userRepository.findBySubscriptionStatusIn(List.of("trialing")).stream()
                 .filter(u -> u.getEmailNotifications())
                 .filter(u -> u.getTrialEndDate() != null
                         && u.getTrialEndDate().isAfter(twoDaysFromNow)
@@ -115,23 +116,21 @@ public class NotificationEmailService {
                 emailService.sendEmail(user.getEmail(), subject, html);
                 sent++;
             } catch (Exception e) {
-                System.err.println("NOTIFY ERROR: Failed to send trial reminder to " + user.getEmail() + ": " + e.getMessage());
+                log.error("Failed to send trial reminder to {}: {}", user.getEmail(), e.getMessage());
             }
         }
 
-        System.out.println("NOTIFY: Trial reminders complete — sent " + sent + " emails");
+        log.info("Trial reminders complete — sent {} emails", sent);
     }
 
     private List<User> getNotifiableUsers() {
-        return userRepository.findAll().stream()
+        return userRepository.findBySubscriptionStatusIn(List.of("active", "trialing")).stream()
                 .filter(u -> u.getEmailNotifications())
-                .filter(u -> "active".equals(u.getSubscriptionStatus())
-                        || "trialing".equals(u.getSubscriptionStatus()))
                 .toList();
     }
 
     private String buildUnsubscribeUrl(User user) {
-        String token = jwtUtil.generateToken(user.getId(), "unsubscribe");
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), "unsubscribe");
         return frontendUrl + "/api/notifications/unsubscribe?token=" + token;
     }
 

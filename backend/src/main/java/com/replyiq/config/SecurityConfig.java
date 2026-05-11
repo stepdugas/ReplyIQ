@@ -29,6 +29,9 @@ public class SecurityConfig {
     @Value("${replyiq.frontend-url:http://localhost:5173}")
     private String frontendUrl;
 
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -53,8 +56,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        List<String> origins = new ArrayList<>(List.of("http://localhost:5173", "http://localhost:8080"));
-        if (frontendUrl != null && !frontendUrl.startsWith("http://localhost")) {
+        List<String> origins = new ArrayList<>();
+        // Only allow localhost origins in dev profile
+        if ("dev".equals(activeProfile)) {
+            origins.add("http://localhost:5173");
+            origins.add("http://localhost:8080");
+        }
+        if (frontendUrl != null && !frontendUrl.isBlank()) {
             origins.add(frontendUrl);
         }
         config.setAllowedOrigins(origins);

@@ -8,6 +8,7 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StripeService {
@@ -42,7 +44,7 @@ public class StripeService {
 
         user.setStripeCustomerId(customer.getId());
         userRepository.save(user);
-        System.out.println("SUCCESS: Stripe customer created for " + user.getEmail());
+        log.info("Stripe customer created for {}", user.getEmail());
         return customer.getId();
     }
 
@@ -110,8 +112,7 @@ public class StripeService {
                     }
 
                     userRepository.save(user);
-                    System.out.println("SUCCESS: Subscription updated for " + user.getEmail()
-                            + " — status: " + mappedStatus);
+                    log.info("Subscription updated for {} — status: {}", user.getEmail(), mappedStatus);
                 });
     }
 

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import api from '../api'
 import { auth } from '../stores/auth'
+import { toast } from '../stores/toast'
 
 const locations = ref([])
 const loading = ref(true)
@@ -23,7 +24,9 @@ async function updateLocation(loc, field, value) {
   try {
     await api.patch(`/locations/${loc.id}/settings`, { [field]: value })
     loc[field] = value
+    toast.showSuccess('Location settings updated')
   } catch (e) {
+    toast.showError('Failed to update location settings')
     console.error('Failed to update location:', e)
   }
 }
@@ -42,6 +45,7 @@ async function subscribe() {
     const { data } = await api.post('/stripe/checkout')
     window.location.href = data.url
   } catch (e) {
+    toast.showError('Failed to start checkout')
     console.error('Failed to create checkout:', e)
   }
 }
@@ -51,6 +55,7 @@ async function manageSubscription() {
     const { data } = await api.post('/stripe/portal')
     window.location.href = data.url
   } catch (e) {
+    toast.showError('Failed to open billing portal')
     console.error('Failed to open billing portal:', e)
   }
 }
@@ -131,7 +136,7 @@ function logout() {
             <select
               :value="loc.tonePreference"
               @change="updateLocation(loc, 'tonePreference', $event.target.value)"
-              class="w-full bg-[#141824] border border-[#2a3040] rounded text-xs text-gray-300 px-2 py-1.5 focus:outline-none focus:border-emerald-500/50"
+              class="w-full bg-[#141824] border border-[#2a3040] rounded text-xs text-gray-300 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320]"
             >
               <option v-for="t in toneOptions" :key="t" :value="t" class="capitalize">
                 {{ t.charAt(0).toUpperCase() + t.slice(1) }}
@@ -144,8 +149,11 @@ function logout() {
             <label class="text-xs text-gray-500">Auto-post replies</label>
             <button
               @click="updateLocation(loc, 'autoPost', !loc.autoPost)"
+              role="switch"
+              :aria-checked="loc.autoPost"
+              aria-label="Auto-post replies"
               :class="[
-                'relative inline-flex h-5 w-9 items-center rounded-full transition-colors',
+                'relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320]',
                 loc.autoPost ? 'bg-emerald-500' : 'bg-[#2a3040]',
               ]"
             >

@@ -4,6 +4,7 @@ import api from '../api'
 import StatsRow from '../components/StatsRow.vue'
 import ReviewCard from '../components/ReviewCard.vue'
 import DashboardSidebar from '../components/DashboardSidebar.vue'
+import { toast } from '../stores/toast'
 
 const stats = ref({ totalReviews: 0, unansweredReviews: 0, repliedThisMonth: 0, averageRating: 0 })
 const reviews = ref([])
@@ -53,8 +54,10 @@ async function loadData() {
 async function generateAll() {
   try {
     await api.post('/replies/generate-all')
+    toast.showSuccess('All replies generated')
     await loadData()
   } catch (e) {
+    toast.showError('Failed to generate replies')
     console.error('Failed to generate replies:', e)
   }
 }
@@ -89,7 +92,8 @@ onMounted(loadData)
           <div class="flex items-center gap-3">
             <button
               @click="mobileMenuOpen = true"
-              class="lg:hidden text-gray-400 hover:text-white"
+              class="lg:hidden text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320]"
+              aria-label="Open navigation menu"
             >
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />

@@ -1,5 +1,6 @@
 package com.replyiq.model;
 
+import com.replyiq.security.EncryptedStringConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -19,9 +20,11 @@ public class OAuthToken {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "access_token", nullable = false, columnDefinition = "TEXT")
     private String accessToken;
 
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "refresh_token", nullable = false, columnDefinition = "TEXT")
     private String refreshToken;
 

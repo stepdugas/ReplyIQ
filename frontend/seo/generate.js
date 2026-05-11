@@ -18,6 +18,9 @@ function layout({ title, metaDescription, canonicalPath, body }) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${title}</title>
 <meta name="description" content="${metaDescription}">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${metaDescription}">
+<meta property="og:type" content="article">
 <link rel="canonical" href="${SITE_URL}${canonicalPath}">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -182,7 +185,7 @@ function generateCityPages() {
   cities.forEach(city => {
     const pageDir = path.join(dir, city.slug)
     ensureDir(pageDir)
-    const cityDesc = `Local businesses in ${city.name}, ${city.state} compete for customers every day — and Google reviews are often the deciding factor. Whether you run a restaurant downtown, a dental practice in the suburbs, or a service business across the metro area, your review responses shape how ${city.name} customers see you. ReplyIQ helps ${city.name} businesses stay on top of every review automatically.`
+    const cityDesc = city.description
 
     const html = layout({
       title: `Google Review Management in ${city.name} — ReplyIQ`,

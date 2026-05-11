@@ -8,6 +8,7 @@ import com.replyiq.repository.OAuthTokenRepository;
 import com.replyiq.repository.UserRepository;
 import com.replyiq.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoogleOAuthService {
@@ -47,7 +49,7 @@ public class GoogleOAuthService {
 
     public String buildAuthorizationUrl(Long userId) {
         // Sign the state parameter so the callback can verify it wasn't tampered with
-        String signedState = jwtUtil.generateToken(userId, "oauth-state");
+        String signedState = jwtUtil.generateToken(userId, "oauth-state", "oauth-state");
         return AUTH_URL
                 + "?client_id=" + clientId
                 + "&redirect_uri=" + redirectUri
@@ -64,6 +66,11 @@ public class GoogleOAuthService {
      */
     public Long verifyStateAndGetUserId(String state) {
         if (!jwtUtil.isTokenValid(state)) {
+            throw new IllegalArgumentException("Invalid or expired OAuth state");
+        }
+        // Verify this token was actually issued for oauth-state
+        String purpose = jwtUtil.getPurposeFromToken(state);
+        if (!"oauth-state".equals(purpose)) {
             throw new IllegalArgumentException("Invalid or expired OAuth state");
         }
         return jwtUtil.getUserIdFromToken(state);
@@ -105,7 +112,7 @@ public class GoogleOAuthService {
             token.setExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
 
             token = oauthTokenRepository.save(token);
-            System.out.println("SUCCESS: Google OAuth tokens saved for user " + userId);
+            log.info("Google OAuth tokens saved for user {}", userId);
             return token;
 
         } catch (Exception e) {

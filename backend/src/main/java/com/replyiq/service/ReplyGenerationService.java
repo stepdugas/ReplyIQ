@@ -6,6 +6,7 @@ import com.replyiq.model.Location;
 import com.replyiq.model.Review;
 import com.replyiq.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReplyGenerationService {
@@ -67,8 +69,7 @@ public class ReplyGenerationService {
             review.setReplyStatus("pending");
             reviewRepository.save(review);
 
-            System.out.println("SUCCESS: AI reply generated for review by " + review.getReviewerName()
-                    + " at " + location.getLocationName());
+            log.info("AI reply generated for review by {} at {}", review.getReviewerName(), location.getLocationName());
 
             // Auto-post if location has it enabled
             replyPostingService.handlePostGeneration(review);
@@ -93,12 +94,11 @@ public class ReplyGenerationService {
                 generateReply(review);
                 generated++;
             } catch (Exception e) {
-                System.err.println("ERROR: Failed to generate reply for review "
-                        + review.getGoogleReviewId() + ": " + e.getMessage());
+                log.error("Failed to generate reply for review {}: {}", review.getGoogleReviewId(), e.getMessage());
             }
         }
 
-        System.out.println("SUCCESS: Generated " + generated + " replies for user " + userId);
+        log.info("Generated {} replies for user {}", generated, userId);
         return generated;
     }
 

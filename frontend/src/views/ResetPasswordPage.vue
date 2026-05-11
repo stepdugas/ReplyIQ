@@ -84,8 +84,9 @@ async function submit() {
               v-model="password"
               type="password"
               required
+              autocomplete="new-password"
               minlength="8"
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -95,8 +96,9 @@ async function submit() {
               v-model="confirmPassword"
               type="password"
               required
+              autocomplete="new-password"
               minlength="8"
-              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              class="w-full bg-[#1a1f2e] border border-[#2a3040] rounded-lg px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-[#0f1320] transition-colors"
               placeholder="••••••••"
             />
           </div>

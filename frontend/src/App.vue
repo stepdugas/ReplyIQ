@@ -5,7 +5,7 @@ import AppFooter from './components/AppFooter.vue'
 import ToastNotification from './components/ToastNotification.vue'
 
 const route = useRoute()
-const showFooter = computed(() => route.name !== 'Dashboard' && route.name !== 'Landing')
+const showFooter = computed(() => route.name !== 'Dashboard')
 </script>
 
 <template>

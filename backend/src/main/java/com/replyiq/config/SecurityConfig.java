@@ -65,6 +65,10 @@ public class SecurityConfig {
         if (frontendUrl != null && !frontendUrl.isBlank()) {
             origins.add(frontendUrl);
         }
+        // Always allow the Railway URL and custom domain
+        origins.add("https://replyiq-app-production.up.railway.app");
+        origins.add("https://www.replyiqapp.com");
+        origins.add("https://replyiqapp.com");
         config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
